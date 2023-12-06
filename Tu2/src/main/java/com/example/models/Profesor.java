@@ -48,7 +48,7 @@ public class Profesor {
 	public String getMateria() {
 		return materia;
 	}
-	public void setMateria(String numeroDoc) {
+	public void setMateria(String materia) {
 		this.materia = materia;
 	}
 
