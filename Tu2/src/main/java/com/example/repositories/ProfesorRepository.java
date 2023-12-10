@@ -6,6 +6,6 @@ import com.example.models.Profesor;
 @Repository
 public interface ProfesorRepository extends CrudRepository<Profesor,Long>{
 
-	Profesor findByTipoDocumentoAndNumeroDoc(String tipoDocumento, String numeroDoc);
+	Profesor findByTipoDocumentoAndNumeroDoc(String tipoDocumento, Long numeroDoc);
 
 }

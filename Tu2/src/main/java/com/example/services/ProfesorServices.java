@@ -9,48 +9,56 @@ import com.example.repositories.ProfesorRepository;
 @Service
 public class ProfesorServices {
 	@Autowired
-	private ProfesorRepository profesorRepository;
+	ProfesorRepository profesorRepository;
 	
-	public ArrayList<Profesor> getAll() {
+	public ArrayList<Profesor> obtenerProfesor() {
 	    return (ArrayList<Profesor>)profesorRepository.findAll();
 	}
 	
-	public Profesor save(Profesor profesor) throws Exception {
+	public Profesor guardarProfesor(Profesor profesor) throws Exception {
 
-	    Profesor profesorEncontrado = profesorRepository.findByTipoDocumentoAndNumeroDoc(profesor.getTipoDocumento(), profesor.getNumeroDoc());
-	    if (profesorEncontrado != null) {
-	        throw new Exception("Ya existe un profesor con el mismo tipo de documento y cédula");
+	    // Obtenemos el profesor con el mismo tipo de documento y número de cédula
+	    Profesor profesorExistente = profesorRepository.findByTipoDocumentoAndNumeroDoc(profesor.getTipoDocumento(), profesor.getNumeroDoc());
+
+	    // Si el profesor existe, lanzamos una excepción
+	    if (profesorExistente != null) {
+	        throw new Exception("Ya existe un profesor con el mismo tipo de documento y número de cédula.");
 	    }
+
+	    // Si el profesor no existe, lo guardamos en la base de datos
 	    return profesorRepository.save(profesor);
 	}
 	
-	public Profesor update(Long id, Profesor profesor) {
+	public Profesor actualizarProfesor(Long id, Profesor profesor) throws Exception {
 
-	    Profesor profesorEncontrado = profesorRepository.findById(id).orElse(null);
-
-	    if (profesorEncontrado != null) {
-
-	        // Actualizar los datos del profesor
-	        profesorEncontrado.setNombres(profesor.getNombres());
-	        profesorEncontrado.setApellidos(profesor.getApellidos());
-	        profesorEncontrado.setTipoDocumento(profesor.getTipoDocumento());
-	        profesorEncontrado.setNumeroDoc(profesor.getNumeroDoc());
-	        profesorEncontrado.setMateria(profesor.getMateria());
-
-	        return profesorRepository.save(profesorEncontrado);
-	    } else {
-	        return null;
+	    // Verificamos si el profesor existe
+	    Profesor profesorExistente = profesorRepository.findById(id).orElse(null);
+	    if (profesorExistente == null) {
+	        throw new Exception("El profesor con el id " + id + " no existe.");
 	    }
+
+	    // Actualizamos los datos del profesor
+	    profesorExistente.setNombres(profesor.getNombres());
+	    profesorExistente.setApellidos(profesor.getApellidos());
+	    profesorExistente.setTipoDocumento(profesor.getTipoDocumento());
+	    profesorExistente.setNumeroDoc(profesor.getNumeroDoc());
+	    profesorExistente.setMateria(profesor.getMateria());
+
+	    // Guardamos los cambios en la base de datos
+	    profesorRepository.save(profesorExistente);
+
+	    return profesorExistente;
 	}
-	public boolean delete(Long id) {
+	
+	public void eliminarProfesor(Long id) throws Exception {
 
+	    // Verificamos si el profesor existe
 	    Profesor profesor = profesorRepository.findById(id).orElse(null);
-
-	    if (profesor != null) {
-	        profesorRepository.delete(profesor);
-	        return true;
-	    } else {
-	        return false;
+	    if (profesor == null) {
+	        throw new Exception("El profesor con el id " + id + " no existe.");
 	    }
+
+	    // Eliminamos el profesor de la base de datos
+	    profesorRepository.delete(profesor);
 	}
 }

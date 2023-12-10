@@ -12,7 +12,7 @@ public class Profesor {
 	private String nombres;
 	private String apellidos;
 	private String tipoDocumento;
-	private String numeroDoc;
+	private Long numeroDoc;
 	private String materia;
 	
 	public Long getId() {
@@ -39,12 +39,12 @@ public class Profesor {
 	public void setTipoDocumento(String tipoDocumento) {
 		this.tipoDocumento = tipoDocumento;
 	}
-	public String getNumeroDoc() {
+	public Long getNumeroDoc() {
 		return numeroDoc;
 	}
-	public void setNumeroDoc(String numeroDoc) {
+	public void setNumeroDoc(Long numeroDoc) {
 		this.numeroDoc = numeroDoc;
-	}
+	}	
 	public String getMateria() {
 		return materia;
 	}

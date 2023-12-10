@@ -2,8 +2,8 @@ package com.example.controllers;
 
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,46 +11,65 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.models.Profesor;
+import com.example.repositories.ProfesorRepository;
 import com.example.services.ProfesorServices;
 
+@RestController
 @RequestMapping("/profesor")
-@Controller
 public class ProfesorController {
 	@Autowired
-	private ProfesorServices profesorService;
+	ProfesorServices profesorService;
+	@Autowired
+	ProfesorRepository profesorRepository;
 	
 	@GetMapping
-	public ResponseEntity<ArrayList<Profesor>> getAll(){
-		return ResponseEntity.ok(profesorService.getAll());
+	public ArrayList<Profesor> obtenerProfesor(){
+		return profesorService.obtenerProfesor();
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<Profesor> save (Profesor profesor) throws Exception{
-	    if (profesor == null){
-	        throw new IllegalArgumentException("El objeto profesor no puede ser nulo");
-	    }
-	    return ResponseEntity.ok(profesorService.save(profesor));
+	public Profesor guardarProfesor(@RequestBody Profesor profesor) throws Exception{
+		return this.profesorService.guardarProfesor(profesor);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<Profesor> update(@PathVariable Long id, @RequestBody Profesor profesor) {
+	public ResponseEntity<?> actualizarProfesor(@PathVariable Long id, @RequestBody Profesor profesor) throws Exception {
 
-	    // Llamar al método update de la clase Services
-	    Profesor profesorActualizado = profesorService.update(id, profesor);
+        // Verificamos si el profesor existe
+        Profesor profesorExistente = profesorRepository.findById(id).orElse(null);
+        if (profesorExistente == null) {
+            return new ResponseEntity<>("El profesor con el id " + id + " no existe.", HttpStatus.NOT_FOUND);
+        }
 
-	    // Devolver el profesor actualizado
-	    return ResponseEntity.ok(profesorActualizado);
-	}
+        // Actualizamos los datos del profesor
+        profesorExistente.setNombres(profesor.getNombres());
+        profesorExistente.setApellidos(profesor.getApellidos());
+        profesorExistente.setTipoDocumento(profesor.getTipoDocumento());
+        profesorExistente.setNumeroDoc(profesor.getNumeroDoc());
+        profesorExistente.setMateria(profesor.getMateria());
+
+        // Guardamos los cambios en la base de datos
+        profesorRepository.save(profesorExistente);
+
+        return new ResponseEntity<>(profesorExistente, HttpStatus.OK);
+    }
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Long id) {
+	 @DeleteMapping("/{id}")
+	    public ResponseEntity<?> eliminarProfesor(@PathVariable Long id) throws Exception {
 
-	    // Llamar al método delete de la clase Services
-	    profesorService.delete(id);
+	        // Verificamos si el profesor existe
+	        Profesor profesor = profesorRepository.findById(id).orElse(null);
+	        if (profesor == null) {
+	            return new ResponseEntity<>("El profesor con el id " + id + " no existe.", HttpStatus.NOT_FOUND);
+	        }
 
-	    // Devolver un código de respuesta 200
-	    return ResponseEntity.ok().build();
-	}
+	        // Eliminamos el profesor de la base de datos
+	        profesorRepository.delete(profesor);
+
+	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	    }
 
 }
